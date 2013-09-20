@@ -24,19 +24,21 @@
 
 
 int HMC6352SlaveAddress = 0x21;
-int HMC6352ReadAddress = 0x41;		//"A" in hex, A command is: "Get Data" command
+int HMC6352ReadCommand = 0x41;		//"A" in hex, A command is: "Get Data" command
 int HMC6352SleepAddress = 0x53; 	//"S" in hex, S command is: "Sleep" command
 int HMC6352WakeAddress = 0x57; 		//"W" in hex, W command is: "Wake" command
 
 
-int HMC6352Class::GetHeading()
+float HMC6352::getHeading()
 {
-  float headingSum;
+  return getHeadingInt()/10.0;
+}
 
-  Wire.beginTransmission(HMC6352SlaveAddress);
-  Wire.write(HMC6352ReadAddress);		// The "Get Data" command
-  Wire.endTransmission();
-  delay(8); //6000 microseconds minimum 6 ms 
+int HMC6352::getHeadingInt()
+{
+  prepareReading();
+  
+  while(millis() - preparedReading < 6) delay(1);
 
   Wire.requestFrom(HMC6352SlaveAddress, 2);
   
@@ -44,27 +46,33 @@ int HMC6352Class::GetHeading()
   //from zero to 3599 and provided in binary format over the two bytes."
   byte MSB = Wire.read();
   byte LSB = Wire.read();
+  preparedReading = 0;
+  return (MSB << 8) + LSB;
+}
 
-  headingSum = (MSB << 8) + LSB; //(MSB / LSB sum)
-  
-  return (headingSum / 10);
+void HMC6352::prepareReading()
+{
+  if(preparedReading == 0)
+  {
+    Wire.beginTransmission(HMC6352SlaveAddress);
+    Wire.write(HMC6352ReadCommand);		// The "Get Data" command
+    Wire.endTransmission();
+    preparedReading = millis();
+  }
 }
 
 
-void HMC6352Class::Wake()
+
+void HMC6352::wakeUp()
 {
   Wire.beginTransmission(HMC6352SlaveAddress);
   Wire.write(HMC6352WakeAddress); //W wake up exit sleep mode
   Wire.endTransmission();
-  
 }
 
-
-void HMC6352Class::Sleep()
+void HMC6352::sleep()
 {
   Wire.beginTransmission(HMC6352SlaveAddress);
   Wire.write(HMC6352SleepAddress); //S enter sleep mode
   Wire.endTransmission();
 }
-
-HMC6352Class HMC6352;

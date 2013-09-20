@@ -21,16 +21,17 @@
 #ifndef HMC6352_H
 #define HMC6352_H
 
-class HMC6352Class
+class HMC6352
 {
   public:
-    int GetHeading();
-    void Wake();
-    void Sleep();
+    float getHeading();
+    int getHeadingInt();
+    void wakeUp();
+    void sleep();
+    void prepareReading();
   private:
+    unsigned long preparedReading;
   
 };
-
-extern HMC6352Class HMC6352;
 
 #endif
