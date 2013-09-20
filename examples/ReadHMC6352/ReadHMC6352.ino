@@ -8,7 +8,8 @@
 
 #include <Wire.h>
 #include <HMC6352.h>
- 
+
+HMC6352 compass;
   
 void setup()
 {  
@@ -22,9 +23,8 @@ void setup()
 
 void loop() 
 { 
-  HMC6352.Wake();
-  Serial.println(HMC6352.GetHeading());
-  HMC6352.Sleep();
+  compass.wakeUp();
+  Serial.println(compass.getHeading());
+  compass.sleep();
   delay(100);
 }
-
